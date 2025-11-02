@@ -278,26 +278,26 @@
     console.log("Website loaded successfully 🚀");
 
     const items = document.querySelectorAll('.offer-list li');
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
     items.forEach(item => {
       const detailBox = item.querySelector('.offer-detail-inline');
       const detailText = item.dataset.detail;
 
-      // desktop hover
-      item.addEventListener('mouseenter', () => {
-        // close all first
-        items.forEach(i => i.querySelector('.offer-detail-inline').classList.remove('active'));
-        // allow HTML
-        detailBox.innerHTML = detailText;
-        detailBox.classList.add('active');
-      });
+      // Desktop hover logic
+      if (!isTouch) {
+        item.addEventListener('mouseenter', () => {
+          items.forEach(i => i.querySelector('.offer-detail-inline').classList.remove('active'));
+          detailBox.innerHTML = detailText;
+          detailBox.classList.add('active');
+        });
 
-      // if you want hover to persist, comment this out
-      item.addEventListener('mouseleave', () => {
-        detailBox.classList.remove('active');
-      });
+        item.addEventListener('mouseleave', () => {
+          detailBox.classList.remove('active');
+        });
+      }
 
-      // mobile / click
+      // Mobile click logic (1 tap)
       item.addEventListener('click', (e) => {
         e.stopPropagation();
         const isActive = detailBox.classList.contains('active');
@@ -309,7 +309,7 @@
       });
     });
 
-    // click outside to close
+    // Click outside to close
     document.body.addEventListener('click', () => {
       document.querySelectorAll('.offer-detail-inline').forEach(box => box.classList.remove('active'));
     });
