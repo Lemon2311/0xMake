@@ -27,15 +27,14 @@
     .bg-layer {
       position: fixed;
       inset: 0;
-      background-image:
-        url("PA6-GF-Mould-e1689001202659.avif"),
-        url("fallback.jpg");
+      background-image: url("PA6-GF-Mould-e1689001202659.avif");
       background-position: center;
       background-size: cover;
       background-repeat: no-repeat;
       opacity: 0.1;
       z-index: 0;
       pointer-events: none;
+      transition: opacity 0.6s ease-in-out;
     }
 
     /* everything else */
@@ -137,7 +136,6 @@
       transition: all 0.3s ease;
     }
 
-    /* emphasize text inside the description */
     .offer-detail-inline b,
     .offer-detail-inline strong {
       color: #9dcfff;
@@ -182,7 +180,6 @@
       filter: brightness(0) saturate(100%) invert(87%) sepia(24%) saturate(1942%) hue-rotate(181deg) brightness(102%) contrast(95%);
     }
 
-    /* FOOTER */
     .site-footer {
       padding: 2rem 1rem;
       text-align:center;
@@ -195,7 +192,6 @@
       letter-spacing: 0.04em;
     }
 
-    /* RESPONSIVE */
     @media (max-width: 1024px) {
       .offers-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
       .offer-list { margin-left: 2rem; }
@@ -223,27 +219,33 @@
       <section class="offers">
         <div class="offers-grid">
           <ul class="offer-list">
-            <li data-detail="<b>We</b> help you <b>choose the right materials</b> to <b>test</b> and <b>bring</b> your <b>products to life</b>! <em><b>Hassle-free manufacturing!</b></em>">
+            <li data-bg="bg-consultation.jpg" data-opacity="0.12"
+                data-detail="<b>We</b> help you <b>choose the right materials</b> to <b>test</b> and <b>bring</b> your <b>products to life</b>! <em><b>Hassle-free manufacturing!</b></em>">
               Professional Manufacturing Consultation
               <div class="offer-detail-inline"></div>
             </li>
-            <li data-detail="<b>Rapid iteration</b> on <em>functional</em> <b>prototypes</b>, we manufacture <b>from one to many</b>, we <em>check mechanical fit</em>, and <b>design-for-manufacturing</b> passes. We also <b>modify</b> your own <b>design to <em>make it more manufacturable<b></em>!">
+            <li data-bg="e.jpg" data-opacity="0.15"
+                data-detail="<b>Rapid iteration</b> on <em>functional</em> <b>prototypes</b>, we manufacture <b>from one to many</b>, we <em>check mechanical fit</em>, and <b>design-for-manufacturing</b> passes. We also <b>modify</b> your own <b>design to <em>make it more manufacturable<b></em>!">
               Prototyping
               <div class="offer-detail-inline"></div>
             </li>
-            <li data-detail="<b>Batch production</b> out of <em><b>any plastic</b></em> from <em>PET, ABS, ASA,</em> to <em> Nylon, PP</em> and <em>PPS</em>. We use your manufacturing-ready files or We <em><b>prepare your design for manufacturing</b></em>.">
+            <li data-bg="a.jpeg" data-opacity="0.35"
+                data-detail="<b>Batch production</b> out of <em><b>any plastic</b></em> from <em>PET, ABS, ASA,</em> to <em>Nylon, PP</em> and <em>PPS</em>. We use your manufacturing-ready files or <em><b>We prepare your design for manufacturing</b></em>.">
               Batch Plastic Manufacturing
               <div class="offer-detail-inline"></div>
             </li>
-            <li data-detail="We <b>digitize existing parts</b>, recreate 3D files, and <b>optimize</b> for re-production. <em>Got a <b>mechanical part that’s no longer on the market?</em> We <em>remake it digitally</em> and produce it</b>.">
+            <li data-bg="d.jpeg" data-opacity="0.35"
+                data-detail="We <b>digitize existing parts</b>, recreate 3D files, and <b>optimize</b> for re-production. <em>Got a <b>mechanical part that’s no longer on the market?</em> We <em>remake it digitally</em> and produce it</b>.">
               Reverse Engineering
               <div class="offer-detail-inline"></div>
             </li>
-            <li data-detail="<b>End-to-end mechanical design in <em>CAD</em></b>, assemblies, jigs, <em><b>robotics parts</b></em>, fixtures, and even <em><b>esthetic design</b></em> parts, all made for <b>real-world constraints</b>.">
+            <li data-bg="c.png" data-opacity="0.25"
+                data-detail="<b>End-to-end mechanical design in <em>CAD</em></b>, assemblies, jigs, <em><b>robotics parts</b></em>, fixtures, and even <em><b>esthetic design</b></em> parts, all made for <b>real-world constraints</b>.">
               Mechanical Design
               <div class="offer-detail-inline"></div>
             </li>
-            <li data-detail="<b>Low to medium batch</b> projects are made via <b>3D printing</b>. When the <em><b>volume grows significally</b></em> we <em>recommend other fabrication methods</em> like <em><b>injection molding</b></em> and <em><b>We</b></em> <em>help</em> you source/<em><b>manufacture in that method as well</b></em>.">
+            <li data-bg="b.jpg" data-opacity="0.25"
+                data-detail="<b>Low to medium batch</b> projects are made via <b>3D printing</b>. When the <em><b>volume grows significally</b></em> we <em>recommend other fabrication methods</em> like <em><b>injection molding</b></em> and <em><b>We</b></em> <em>help</em> you source/<em><b>manufacture in that method as well</b></em>.">
               Professional Additive Manufacturing Service
               <div class="offer-detail-inline"></div>
             </li>
@@ -277,41 +279,64 @@
   <script>
     console.log("Website loaded successfully 🚀");
 
+    const bgLayer = document.querySelector('.bg-layer');
     const items = document.querySelectorAll('.offer-list li');
+    const offersSection = document.querySelector('.offer-list');
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    let defaultBg = 'PA6-GF-Mould-e1689001202659.avif';
+    let defaultOpacity = 0.1;
+
+    function changeBackground(image, opacity) {
+      bgLayer.style.opacity = 0; // fade out
+      setTimeout(() => {
+        bgLayer.style.backgroundImage = `url(${image})`;
+        bgLayer.style.opacity = opacity; // fade in
+      }, 200);
+    }
+
+    function resetBackground() {
+      changeBackground(defaultBg, defaultOpacity);
+    }
 
     items.forEach(item => {
       const detailBox = item.querySelector('.offer-detail-inline');
       const detailText = item.dataset.detail;
+      const bgImage = item.dataset.bg;
+      const bgOpacity = item.dataset.opacity || 0.1;
 
-      // Desktop hover logic
       if (!isTouch) {
         item.addEventListener('mouseenter', () => {
           items.forEach(i => i.querySelector('.offer-detail-inline').classList.remove('active'));
           detailBox.innerHTML = detailText;
           detailBox.classList.add('active');
-        });
-
-        item.addEventListener('mouseleave', () => {
-          detailBox.classList.remove('active');
+          changeBackground(bgImage, bgOpacity);
         });
       }
 
-      // Mobile click logic (1 tap)
-      item.addEventListener('click', (e) => {
+      item.addEventListener('click', e => {
         e.stopPropagation();
         const isActive = detailBox.classList.contains('active');
         items.forEach(i => i.querySelector('.offer-detail-inline').classList.remove('active'));
         if (!isActive) {
           detailBox.innerHTML = detailText;
           detailBox.classList.add('active');
+          changeBackground(bgImage, bgOpacity);
+        } else {
+          resetBackground();
         }
       });
     });
 
-    // Click outside to close
+    // ✅ only reset when leaving the whole list
+    offersSection.addEventListener('mouseleave', () => {
+      document.querySelectorAll('.offer-detail-inline').forEach(box => box.classList.remove('active'));
+      resetBackground();
+    });
+
+    // click outside closes details and resets background
     document.body.addEventListener('click', () => {
       document.querySelectorAll('.offer-detail-inline').forEach(box => box.classList.remove('active'));
+      resetBackground();
     });
   </script>
 </body>
