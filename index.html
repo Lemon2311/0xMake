@@ -276,68 +276,120 @@
     </footer>
   </div>
 
-  <script>
-    console.log("Website loaded successfully 🚀");
+<script>
+  console.log("Website loaded successfully 🚀");
 
-    const bgLayer = document.querySelector('.bg-layer');
-    const items = document.querySelectorAll('.offer-list li');
-    const offersSection = document.querySelector('.offer-list');
-    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    let defaultBg = 'g.jpg';
-    let defaultOpacity = 0.3;
+  const bgLayer = document.querySelector('.bg-layer');
+  const items = document.querySelectorAll('.offer-list li');
+  const offersSection = document.querySelector('.offer-list');
+  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const defaultBg = 'g.jpg';
+  const defaultOpacity = 0.3;
 
-    function changeBackground(image, opacity) {
-      bgLayer.style.opacity = 0; // fade out
+  // set initial background and state
+  bgLayer.style.backgroundImage = `url(${defaultBg})`;
+  bgLayer.style.opacity = defaultOpacity;
+  bgLayer.dataset.current = defaultBg;
+
+  // Collect image urls and preload them
+  const imageUrls = Array.from(items)
+    .map(i => i.dataset.bg)
+    .filter(Boolean);
+
+  // Preload via Image objects (fast, simple)
+  imageUrls.forEach(src => {
+    const img = new Image();
+    img.src = src;
+  });
+
+  // Optional: also add <link rel="preload" as="image"> tags for high-priority images
+  // (uncomment if desired)
+  // imageUrls.forEach(src => {
+  //   const link = document.createElement('link');
+  //   link.rel = 'preload';
+  //   link.as = 'image';
+  //   link.href = src;
+  //   document.head.appendChild(link);
+  // });
+
+  // Smoothly change background but only after the image has loaded
+  function changeBackground(image, opacity) {
+    if (!image) return;
+    // if it's already the current image, just adjust opacity and return
+    if (bgLayer.dataset.current === image) {
+      bgLayer.style.opacity = opacity;
+      return;
+    }
+
+    // fade out
+    bgLayer.style.opacity = 0;
+
+    // load image first, then swap and fade in
+    const preload = new Image();
+    preload.onload = () => {
+      // set background only when image is ready
+      bgLayer.style.backgroundImage = `url(${image})`;
+      bgLayer.dataset.current = image;
+      // small delay to ensure the background-image paint occurs before fading in
+      // leaving it very short so transitions stay snappy
       setTimeout(() => {
-        bgLayer.style.backgroundImage = `url(${image})`;
-        bgLayer.style.opacity = opacity; // fade in
-      }, 200);
-    }
+        bgLayer.style.opacity = opacity;
+      }, 50);
+    };
+    preload.onerror = () => {
+      // if load fails, revert to default (avoid staying transparent)
+      bgLayer.style.backgroundImage = `url(${defaultBg})`;
+      bgLayer.dataset.current = defaultBg;
+      setTimeout(() => { bgLayer.style.opacity = defaultOpacity; }, 50);
+    };
+    preload.src = image;
+  }
 
-    function resetBackground() {
-      changeBackground(defaultBg, defaultOpacity);
-    }
+  function resetBackground() {
+    changeBackground(defaultBg, defaultOpacity);
+  }
 
-    items.forEach(item => {
-      const detailBox = item.querySelector('.offer-detail-inline');
-      const detailText = item.dataset.detail;
-      const bgImage = item.dataset.bg;
-      const bgOpacity = item.dataset.opacity || 0.1;
+  items.forEach(item => {
+    const detailBox = item.querySelector('.offer-detail-inline');
+    const detailText = item.dataset.detail || '';
+    const bgImage = item.dataset.bg;
+    const bgOpacity = parseFloat(item.dataset.opacity) || 0.1;
 
-      if (!isTouch) {
-        item.addEventListener('mouseenter', () => {
-          items.forEach(i => i.querySelector('.offer-detail-inline').classList.remove('active'));
-          detailBox.innerHTML = detailText;
-          detailBox.classList.add('active');
-          changeBackground(bgImage, bgOpacity);
-        });
-      }
-
-      item.addEventListener('click', e => {
-        e.stopPropagation();
-        const isActive = detailBox.classList.contains('active');
+    if (!isTouch) {
+      item.addEventListener('mouseenter', () => {
         items.forEach(i => i.querySelector('.offer-detail-inline').classList.remove('active'));
-        if (!isActive) {
-          detailBox.innerHTML = detailText;
-          detailBox.classList.add('active');
-          changeBackground(bgImage, bgOpacity);
-        } else {
-          resetBackground();
-        }
+        detailBox.innerHTML = detailText;
+        detailBox.classList.add('active');
+        changeBackground(bgImage, bgOpacity);
       });
-    });
+    }
 
-    // ✅ only reset when leaving the whole list
-    offersSection.addEventListener('mouseleave', () => {
-      document.querySelectorAll('.offer-detail-inline').forEach(box => box.classList.remove('active'));
-      resetBackground();
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      const isActive = detailBox.classList.contains('active');
+      items.forEach(i => i.querySelector('.offer-detail-inline').classList.remove('active'));
+      if (!isActive) {
+        detailBox.innerHTML = detailText;
+        detailBox.classList.add('active');
+        changeBackground(bgImage, bgOpacity);
+      } else {
+        resetBackground();
+      }
     });
+  });
 
-    // click outside closes details and resets background
-    document.body.addEventListener('click', () => {
-      document.querySelectorAll('.offer-detail-inline').forEach(box => box.classList.remove('active'));
-      resetBackground();
-    });
-  </script>
+  // only reset when leaving the whole list
+  offersSection.addEventListener('mouseleave', () => {
+    document.querySelectorAll('.offer-detail-inline').forEach(box => box.classList.remove('active'));
+    resetBackground();
+  });
+
+  // click outside closes details and resets background
+  document.body.addEventListener('click', () => {
+    document.querySelectorAll('.offer-detail-inline').forEach(box => box.classList.remove('active'));
+    resetBackground();
+  });
+</script>
+
 </body>
 </html>
