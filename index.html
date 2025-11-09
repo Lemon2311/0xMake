@@ -27,11 +27,11 @@
     .bg-layer {
       position: fixed;
       inset: 0;
-      background-image: url("PA6-GF-Mould-e1689001202659.avif");
+      background-image: url("g.jpg");
       background-position: center;
       background-size: cover;
       background-repeat: no-repeat;
-      opacity: 0.1;
+      opacity: 0.3;
       z-index: 0;
       pointer-events: none;
       transition: opacity 0.6s ease-in-out;
@@ -219,7 +219,7 @@
       <section class="offers">
         <div class="offers-grid">
           <ul class="offer-list">
-            <li data-bg="f.jpg" data-opacity="0.2"
+            <li data-bg="f.jpg" data-opacity="0.3"
                 data-detail="<b>We</b> help you <b>choose the right materials</b> to <b>test</b> and <b>bring</b> your <b>products to life</b>! <em><b>Hassle-free manufacturing!</b></em>">
               Professional Manufacturing Consultation
               <div class="offer-detail-inline"></div>
@@ -283,8 +283,8 @@
     const items = document.querySelectorAll('.offer-list li');
     const offersSection = document.querySelector('.offer-list');
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    let defaultBg = 'PA6-GF-Mould-e1689001202659.avif';
-    let defaultOpacity = 0.1;
+    let defaultBg = 'g.jpg';
+    let defaultOpacity = 0.3;
 
     function changeBackground(image, opacity) {
       bgLayer.style.opacity = 0; // fade out
